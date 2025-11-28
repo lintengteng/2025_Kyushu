@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>九州六日漫遊 | Kyushu Vibe Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                        display: ['Zen Maru Gothic', 'sans-serif'],
+                    },
+                    colors: {
+                        'jp-red': '#BC002D',
+                        'sakura': '#FFDBED',
+                        'slate-dark': '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定義滾動條與細節動畫 */
+        body {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        [x-cloak] { display: none !important; }
+        
+        /* 簡單的淡入動畫 Class */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="text-slate-700 antialiased">
+
+    <header class="relative h-[60vh] flex items-center justify-center overflow-hidden bg-slate-900 text-white">
+        <div class="absolute inset-0 z-0 opacity-60">
+            <img src="https://images.unsplash.com/photo-1570459027562-4a916cc6113f?q=80&w=1920&auto=format&fit=crop" alt="Kyushu Castle" class="w-full h-full object-cover">
+        </div>
+        <div class="relative z-10 text-center p-6 glass-card rounded-3xl shadow-2xl bg-black/30 border-none">
+            <h1 class="font-display text-4xl md:text-6xl font-bold mb-4 tracking-widest text-white drop-shadow-lg">九州・熊本福岡</h1>
+            <p class="text-xl md:text-2xl font-light tracking-wide text-gray-100">火山、古城、溫泉與屋台美食之旅</p>
+            <div class="mt-8 flex justify-center gap-4 text-sm font-bold tracking-widest">
+                <span class="px-4 py-2 bg-jp-red rounded-full">2/22 - 2/27</span>
+                <span class="px-4 py-2 bg-white text-slate-900 rounded-full">6 Days</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-12" x-data="itinerary()">
+        
+        <div class="flex justify-center gap-4 mb-12 sticky top-4 z-50">
+            <template x-for="(day, index) in days" :key="index">
+                <button 
+                    @click="scrollToDay(index)"
+                    class="hidden md:block px-4 py-2 rounded-full text-sm font-bold shadow-md transition-all duration-300 hover:scale-110"
+                    :class="activeDay === index ? 'bg-jp-red text-white ring-2 ring-offset-2 ring-jp-red' : 'bg-white text-slate-600 hover:bg-gray-50'"
+                    x-text="day.dateShort">
+                </button>
+            </template>
+        </div>
+
+        <div class="space-y-12 relative">
+            <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gray-300 -translate-x-1/2 hidden md:block"></div>
+
+            <template x-for="(day, index) in days" :key="index">
+                <div :id="'day-' + index" class="itinerary-card relative flex flex-col md:flex-row items-center md:justify-between gap-6 group" x-intersect.threshold.0.5="activeDay = index">
+                    
+                    <div class="absolute left-1/2 -translate-x-1/2 w-8 h-8 bg-jp-red rounded-full border-4 border-white shadow-lg hidden md:flex items-center justify-center z-10">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                    </div>
+
+                    <div class="w-full md:w-[45%] flex flex-col items-start md:items-end text-left md:text-right order-1" :class="{'md:order-1': index % 2 === 0, 'md:order-3 md:text-left md:items-start': index % 2 !== 0}">
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-jp-red w-full">
+                            <h2 class="text-3xl font-display font-bold text-slate-800" x-text="day.date"></h2>
+                            <p class="text-jp-red font-bold uppercase tracking-wider text-sm mt-1" x-text="day.weekday"></p>
+                            <div class="mt-3 flex items-center gap-2 md:justify-end" :class="{'md:justify-start': index % 2 !== 0}">
+                                <span class="text-xs font-bold text-gray-400 uppercase">Stay</span>
+                                <span class="px-3 py-1 bg-slate-100 rounded-lg text-sm font-medium text-slate-700 flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                                    <span x-text="day.stay"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-[45%] order-2" :class="{'md:order-3': index % 2 === 0, 'md:order-1': index % 2 !== 0}">
+                        <div class="glass-card p-6 rounded-3xl shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1 transform border-t-4" :class="day.colorClass">
+                            <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                                <span x-text="day.emoji" class="text-2xl"></span>
+                                <span x-text="day.title"></span>
+                            </h3>
+                            
+                            <ul class="space-y-4">
+                                <template x-for="item in day.items">
+                                    <li class="flex gap-3">
+                                        <div class="mt-1 min-w-[6px] h-[6px] rounded-full bg-slate-400"></div>
+                                        <div>
+                                            <span class="block text-slate-800 font-medium" x-text="item.spot"></span>
+                                            <span class="block text-sm text-slate-500 mt-1" x-text="item.desc"></span>
+                                        </div>
+                                    </li>
+                                </template>
+                            </ul>
+
+                            <div class="mt-6 pt-4 border-t border-gray-200" x-show="day.tips">
+                                <p class="text-xs text-slate-500 italic flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                                    <span x-text="day.tips"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </template>
+        </div>
+
+        <div class="mt-20 text-center text-slate-400 text-sm pb-10">
+            <p>Have a wonderful trip to Kyushu! ✈️</p>
+            <p class="mt-2">Made with Vibe Coding</p>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('itinerary', () => ({
+                activeDay: 0,
+                days: [
+                    {
+                        date: '2/22',
+                        weekday: 'Sunday',
+                        dateShort: '2/22 (日)',
+                        stay: '熊本 (Kumamoto)',
+                        title: '抵達熊本與初次探索',
+                        emoji: '🛬',
+                        colorClass: 'border-blue-400',
+                        items: [
+                            { spot: '17:30 抵達熊本', desc: '辦理入住手續，放好行李準備覓食。' },
+                            { spot: '上下通、新市街散步', desc: '熊本最熱鬧的商店街，藥妝、服飾一應俱全。' }
+                        ],
+                        tips: '晚餐推薦嘗試熊本名物「馬肉刺身」或濃郁的「熊本拉麵」(如: 黑亭、桂花)。'
+                    },
+                    {
+                        date: '2/23',
+                        weekday: 'Monday',
+                        dateShort: '2/23 (一)',
+                        stay: '熊本 (Kumamoto)',
+                        title: '熊本城下町巡禮',
+                        emoji: '🏯',
+                        colorClass: 'border-slate-800',
+                        items: [
+                            { spot: '熊本城', desc: '日本三大名城之一，見證震後修復的奇蹟與壯觀天守閣。' },
+                            { spot: '櫻之馬場 城彩苑', desc: '充滿江戶風情的美食街，必吃海膽可樂餅、いきなり団子。' },
+                            { spot: '二之丸公園', desc: '適合遠眺天守閣的絕佳攝影點。' },
+                            { spot: '上下通購物', desc: '傍晚回到市區繼續未完的購物行程。' }
+                        ],
+                        tips: '熊本城很大，建議穿著好走的鞋子。'
+                    },
+                    {
+                        date: '2/24',
+                        weekday: 'Tuesday',
+                        dateShort: '2/24 (二)',
+                        stay: '熊本 (Kumamoto)',
+                        title: '神話之鄉一日遊',
+                        emoji: '🌋',
+                        colorClass: 'border-green-500',
+                        items: [
+                            { spot: '阿蘇火山', desc: '近距離觀看世界級的火山口（視氣體濃度開放），草千里景色壯闊。' },
+                            { spot: '高千穗峽', desc: '宮崎縣的神祕峽谷，真名井瀑布的划船體驗如入仙境。' }
+                        ],
+                        tips: '此日交通時間較長，若參加巴士一日遊請準時集合。山上氣溫較低，請帶外套。'
+                    },
+                    {
+                        date: '2/25',
+                        weekday: 'Wednesday',
+                        dateShort: '2/25 (三)',
+                        stay: '福岡 (Fukuoka)',
+                        title: '移動日 & 福岡文化滿喫',
+                        emoji: '⛩️',
+                        colorClass: 'border-red-400',
+                        items: [
+                            { spot: '太宰府天滿宮 & 表參道', desc: '學問之神，必摸御神牛，星巴克概念店打卡。' },
+                            { spot: '寶滿宮竈門神社', desc: '以結緣與《鬼滅之刃》聖地聞名，紅葉與社務所設計極美。' },
+                            { spot: '福岡市區神社巡禮', desc: '櫛田神社(博多總鎮守)、住吉神社。' },
+                            { spot: '中洲屋台街', desc: '體驗福岡獨特的河邊路邊攤文化，關東煮與拉麵。' }
+                        ],
+                        tips: '行程較緊湊，建議早上先去太宰府，下午回福岡市區。行李可先寄放飯店或車站。'
+                    },
+                    {
+                        date: '2/26',
+                        weekday: 'Thursday',
+                        dateShort: '2/26 (四)',
+                        stay: '由布院 (Yufuin)',
+                        title: '由布院童話溫泉鄉',
+                        emoji: '♨️',
+                        colorClass: 'border-orange-300',
+                        items: [
+                            { spot: '由布院一日遊', desc: '漫步湯之坪街道，探訪史努比茶屋、龍貓專賣店。' },
+                            { spot: '金鱗湖', desc: '欣賞湖光山色，若有時間一定要體驗當地的日歸溫泉或足湯。' },
+                            { spot: '入住由布院', desc: '享受溫泉旅館的懷石料理與寧靜夜晚。' }
+                        ],
+                        tips: 'B-Speak 蛋糕捲非常熱門，建議一抵達就先去預約或購買。'
+                    },
+                    {
+                        date: '2/27',
+                        weekday: 'Friday',
+                        dateShort: '2/27 (五)',
+                        stay: 'Home',
+                        title: '最後衝刺與返家',
+                        emoji: '🛍️',
+                        colorClass: 'border-indigo-500',
+                        items: [
+                            { spot: '移動日', desc: '從由布院搭乘由布院之森(需預約)或巴士返回福岡博多。' },
+                            { spot: '天神地下街', desc: '九州最大地下購物商圈，伴手禮最後補貨 (Bake Cheese Tart等)。' },
+                            { spot: '18:30 回台灣', desc: '前往福岡機場，帶著滿滿戰利品回家。' }
+                        ],
+                        tips: '福岡機場免稅店也很好買，建議提早2.5小時抵達機場。'
+                    }
+                ],
+                scrollToDay(index) {
+                    const el = document.getElementById('day-' + index);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        this.activeDay = index;
+                    }
+                }
+            }))
+        })
+
+        // 簡單的 Scroll Observer 來觸發動畫效果
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.itinerary-card').forEach((el) => {
+            el.classList.add('fade-in-up');
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
